@@ -1,0 +1,33 @@
+* {
+  box-sizing: border-box;
+}
+
+.rating {
+  position: relative;
+}
+
+.units {
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+.unit {
+  cursor: pointer;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: auto;
+  color: #D2D2D2;
+}
+
+.readonly {
+  .unit {
+    cursor: default;
+  }
+}
+
+.selected {
+  color: #EDB867;
+}
+
+.active {
+  color: #EDB867;
+}

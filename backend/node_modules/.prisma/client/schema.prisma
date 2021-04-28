@@ -1,0 +1,161 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native"]
+}
+
+model User {
+  id String @id @default(uuid())
+  email String @unique
+  passwordHash String?
+  firstName String?
+  middleName String?
+  lastName String?
+  nickName String? @unique
+  profilePicture String?
+  transactions Transaction[]
+  shippingAddresses Address[] @relation("ShippingAddress")
+  creditCards CreditCard[]
+  roles Role[]
+  reviews Review[]
+  shoppingCart ShoppingCart[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("users")
+}
+
+model Book {
+  id String @id @default(uuid())
+  title String @unique
+  authors Author[]
+  publisher Publisher @relation(fields: [publisherId], references: [id])
+  publisherId String
+  publishYear Int
+  isbn Int @unique
+  description String
+  genres Genre[]
+  price Float
+  reviews Review[]
+  coverUrl String?
+  coverDataUri String?
+  sold Int @default(0)
+  transaction Transaction? @relation(fields: [transactionId], references: [id])
+  transactionId String?
+  shoppingCart ShoppingCart? @relation(fields: [shoppingCartId], references: [id])
+  shoppingCartId String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  @@map("books")
+}
+
+model Author {
+  id String @id @default(uuid())
+  firstName String
+  middleName String?
+  lastName String
+  description String
+  books Book[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([firstName, middleName, lastName])
+  @@map("authors")
+}
+
+model Publisher {
+  id String @id @default(uuid())
+  name String @unique
+  city String
+  state String
+  website String?
+  book Book[]
+  @@map("publishers")
+}
+
+model Genre {
+  id Int @id @default(autoincrement())
+  name String @unique
+  books Book[]
+  @@map("genres")
+}
+
+model Review {
+  id String @id @default(uuid())
+  value Int @default(0)
+  description String
+  postedAs String @default("anonymous")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user User @relation(fields: [userId], references: [id])
+  userId String
+  book Book @relation(fields: [bookId], references: [id])
+  bookId String
+  @@map("reviews")
+}
+
+model Address {
+  id String  @id @default(uuid())
+  street String
+  apartmentOrUnit String?
+  city String
+  state String
+  country String
+  zipcode String
+  userShippingAddress User @relation("ShippingAddress", fields: [userShippingAddressId], references: [id])
+  userShippingAddressId String
+  @@map("addresses")
+}
+
+model Transaction {
+  id String @id @default(uuid())
+  user User @relation(fields: [userId], references: [id])
+  userId String
+  books Book[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("transactions")
+}
+
+model CreditCard {
+  id String @id @default(uuid())
+  user User @relation(fields: [userId], references: [id])
+  userId String
+  encryptedCreditCardNumber String
+  encryptedCCV String
+  lastFourDigits String
+  expirationDate DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("credit_cards")
+}
+
+model ShoppingCart {
+  id String @id @default(uuid())
+  user User @relation(fields: [userId], references: [id])
+  userId String
+  books Book[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("shopping_carts")
+}
+
+model Role {
+  id Int @id @default(autoincrement())
+  name String @unique
+  users User[]
+  @@map("roles")
+}
+
+model Log {
+  id String @id @default(uuid())
+  name String
+  message String
+  createdAt DateTime @default(now())
+  @@map("logs")
+}

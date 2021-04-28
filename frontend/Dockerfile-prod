@@ -1,0 +1,20 @@
+FROM node:lts-alpine3.10
+
+ENV NODE_ENV production
+ENV REST_API_ENDPOINT /api
+
+WORKDIR /app
+
+COPY . .
+
+RUN NODE_ENV=development npm install --no-optional && \
+  npm run build -- --prod --aot && \
+  npm cache clean --force
+
+FROM nginx:mainline-alpine
+
+COPY etc/nginx/conf.d/default.conf /etc/nginx/conf.d/
+
+COPY --from=builder /app/dist /app/dist
+
+EXPOSE 4200
